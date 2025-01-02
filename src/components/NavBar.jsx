@@ -86,15 +86,15 @@ const NavBar = () => {
         <div className="flex space-x-4">
         <Link
           to="/signup"
-          className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-900 transition duration-300"
+          className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-300"
         >
-          SIGN UP
+          Sign Up
         </Link>
         <Link
           to="/login"
-          className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-900 transition duration-300"
+          className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-300"
         >
-          SIGN IN
+          Sign In
         </Link>
       </div>
       </div>
