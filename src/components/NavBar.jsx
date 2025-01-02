@@ -7,7 +7,6 @@ const NavBar = () => {
 
 
   useEffect(() => {
-    // Hanya jalankan logika scroll jika berada di halaman root ('/')
     if (location.pathname === "/") {
       const handleScroll = () => {
         const heroElement = document.getElementById("hero");
@@ -20,7 +19,6 @@ const NavBar = () => {
       window.addEventListener("scroll", handleScroll);
       return () => window.removeEventListener("scroll", handleScroll);
     } else {
-      // Pastikan navbar memiliki background di halaman lain
       setIsScrolled(true);
     }
   }, [location]);

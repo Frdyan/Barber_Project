@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 const HairArtist = () => {
   return (
     <div id="hair-artist" className="py-12 px-6 text-center bg-white scroll-mt-20">
@@ -44,10 +45,12 @@ const HairArtist = () => {
       </div>
 
       {/* Book Button */}
-      <div className="mt-8">
-        <button className="bg-red-700 hover:bg-red-900 text-white py-2 px-6 rounded-full shadow-lg">
-          Book
-        </button>
+      <div className="mt-8 text-center">
+      <Link to="/booking">
+          <button className="bg-red-700 hover:bg-red-900 text-white py-3 px-8 rounded-full shadow-lg text-lg transition-transform duration-300 hover:scale-105">
+            Book
+          </button>
+        </Link>
       </div>
     </div>
   );

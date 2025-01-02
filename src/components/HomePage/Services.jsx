@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Services = () => {
   return (
     <div id="services" className="bg-beige py-12 scroll-mt-20">
@@ -41,9 +43,11 @@ const Services = () => {
       </div>
 
       <div className="mt-8 text-center">
-        <button className="bg-red-700 hover:bg-red-900 text-white py-3 px-8 rounded-full shadow-lg text-lg transition-transform duration-300 hover:scale-105">
-          Book
-        </button>
+      <Link to="/booking">
+          <button className="bg-red-700 hover:bg-red-900 text-white py-3 px-8 rounded-full shadow-lg text-lg transition-transform duration-300 hover:scale-105">
+            Book
+          </button>
+        </Link>
       </div>
     </div>
   );
