@@ -1,9 +1,9 @@
-import Hero from '../components/Hero'
-import Services from '../components/Services'
-import AboutUs from '../components/AboutUs'
-import HairArtist from '../components/HairArtist'
-import Contact from '../components/Contact'
-import Address from '../components/Address'
+import Hero from '../components/HomePage/Hero'
+import Services from '../components/HomePage/Services'
+import AboutUs from '../components/HomePage/AboutUs'
+import HairArtist from '../components/HomePage/HairArtist'
+import Contact from '../components/HomePage/Contact'
+import Address from '../components/HomePage/Address'
 import Footer from '../components/Footer'
 
 const HomePage = () => {
