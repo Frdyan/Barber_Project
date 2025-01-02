@@ -1,6 +1,6 @@
 const Hero = () => {
   return (
-    <div id="hero" className="relative w-full h-[85vh] bg-gray-900 scroll-mt-20">
+    <div id="hero" className="relative w-full h-[100vh] bg-gray-900 scroll-mt-20">
       {/* Background Image */}
       <img
         src="src/assets/images/Barber_Hero.jpg"

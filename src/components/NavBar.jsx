@@ -1,20 +1,29 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+
 
   useEffect(() => {
-    const handleScroll = () => {
-      const heroElement = document.getElementById("hero");
-      if (heroElement) {
-        const heroBottom = heroElement.getBoundingClientRect().bottom;
-        setIsScrolled(heroBottom < 0);
-      }
-    };
+    // Hanya jalankan logika scroll jika berada di halaman root ('/')
+    if (location.pathname === "/") {
+      const handleScroll = () => {
+        const heroElement = document.getElementById("hero");
+        if (heroElement) {
+          const heroBottom = heroElement.getBoundingClientRect().bottom;
+          setIsScrolled(heroBottom < 0);
+        }
+      };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    } else {
+      // Pastikan navbar memiliki background di halaman lain
+      setIsScrolled(true);
+    }
+  }, [location]);
 
   return (
     <div
@@ -25,11 +34,13 @@ const NavBar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
+        <Link to="/">
           <img
             src="src/assets/images/Barber_Logo.svg"
             alt="Logo"
-            className="w-20 h-20 object-contain"
+            className="w-20 h-20 object-contain cursor-pointer"
           />
+        </Link>
         </div>
 
         {/* Navigation Links */}
@@ -73,13 +84,19 @@ const NavBar = () => {
 
         {/* Buttons */}
         <div className="flex space-x-4">
-          <button className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-900 transition duration-300">
-            SIGN UP
-          </button>
-          <button className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-900 transition duration-300">
-            SIGN IN
-          </button>
-        </div>
+        <Link
+          to="/signup"
+          className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-900 transition duration-300"
+        >
+          SIGN UP
+        </Link>
+        <Link
+          to="/login"
+          className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-900 transition duration-300"
+        >
+          SIGN IN
+        </Link>
+      </div>
       </div>
     </div>
   );
