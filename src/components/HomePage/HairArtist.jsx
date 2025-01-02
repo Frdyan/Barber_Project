@@ -11,7 +11,7 @@ const HairArtist = () => {
         <div className="flex flex-col items-center">
           <div className="w-48 h-auto overflow-hidden rounded-md shadow-md">
             <img
-              src="src/assets/images/profile-1.jpg" // Ganti dengan URL gambar Shane
+              src="src/assets/images/profile-1.jpg" 
               alt="Shane"
               className="w-full h-full object-cover transform transition-all duration-300 hover:scale-110"
             />
@@ -23,7 +23,7 @@ const HairArtist = () => {
         <div className="flex flex-col items-center">
           <div className="w-48 h-auto overflow-hidden rounded-md shadow-md">
             <img
-              src="src/assets/images/profile-2.jpg" // Ganti dengan URL gambar Debra
+              src="src/assets/images/profile-2.jpg" 
               alt="Debra"
               className="w-full h-full object-cover transform transition-all duration-300 hover:scale-110"
             />
@@ -35,7 +35,7 @@ const HairArtist = () => {
         <div className="flex flex-col items-center">
           <div className="w-48 h-auto overflow-hidden rounded-md shadow-md">
             <img
-              src="src/assets/images/profile-3.jpg" // Ganti dengan URL gambar Ann
+              src="src/assets/images/profile-3.jpg" 
               alt="Ann"
               className="w-full h-full object-cover transform transition-all duration-300 hover:scale-110"
             />
