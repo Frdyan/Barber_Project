@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div id="hero" className="relative w-full h-[100vh] bg-gray-900 scroll-mt-20">
@@ -15,9 +16,11 @@ const Hero = () => {
         <h1 className="text-4xl md:text-8xl font-bold mb-4 text-amber-100 max-w-[70%]">
           OUR HAIRSTYLE MAKES YOU LOOK ELEGANT
         </h1>
-        <button className="min-w-[200px] py-3 bg-red-700 hover:bg-red-900 text-white rounded-md shadow-md ">
-          Book
-        </button>
+        <Link to="/booking">
+          <button className="min-w-[200px] py-3 bg-red-700 hover:bg-red-900 text-white rounded-md shadow-md ">
+            Book
+          </button>
+        </Link>
       </div>
     </div>
   );
