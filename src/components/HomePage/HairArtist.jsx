@@ -6,22 +6,22 @@ const HairArtist = () => {
       <h2 className="text-2xl md:text-3xl font-bold text-orange-700 mb-6">HAIR ARTISTS</h2>
 
       {/* Hair Artist Profiles */}
-      <div className="flex justify-center items-center gap-8">
+      <div className="flex flex-wrap justify-center items-center gap-8">
         {/* Artist 1 */}
-        <div className="flex flex-col items-center">
-          <div className="w-48 h-auto overflow-hidden rounded-md shadow-md">
+        <div className="flex flex-col items-center w-40 sm:w-48">
+          <div className="w-full h-auto overflow-hidden rounded-md shadow-md">
             <img
               src="src/assets/images/profile-1.jpg" 
               alt="Shane"
               className="w-full h-full object-cover transform transition-all duration-300 hover:scale-110"
             />
           </div>
-          <p className="text-lg font-semibold text-blue-900 mt-4">Shane</p>
+          <p className="text base sm:text-lg font-semibold text-blue-900 mt-4">Shane</p>
         </div>
 
         {/* Artist 2 */}
-        <div className="flex flex-col items-center">
-          <div className="w-48 h-auto overflow-hidden rounded-md shadow-md">
+        <div className="flex flex-col items-center w-40 sm:w-48">
+          <div className="w-full h-auto overflow-hidden rounded-md shadow-md">
             <img
               src="src/assets/images/profile-2.jpg" 
               alt="Debra"
@@ -32,8 +32,8 @@ const HairArtist = () => {
         </div>
 
         {/* Artist 3 */}
-        <div className="flex flex-col items-center">
-          <div className="w-48 h-auto overflow-hidden rounded-md shadow-md">
+        <div className="flex flex-col items-center w-40 sm:w-48">
+          <div className="w-full h-auto overflow-hidden rounded-md shadow-md">
             <img
               src="src/assets/images/profile-3.jpg" 
               alt="Ann"
