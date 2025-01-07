@@ -1,10 +1,10 @@
 const Address = () => {
   return (
-    <div className="mt-8">
+    <div className="mt-8 px-4 sm:px-6 lg:px-8">
       {/* Google Maps Section */}
       <h2 className="text-2xl font-bold text-center mb-4">Our Location</h2>
       <div
-        className="mx-[200px] p-6 bg-white rounded-lg shadow-lg relative overflow-hidden"
+        className="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-lg relative overflow-hidden"
         
       >
         <a
@@ -16,7 +16,7 @@ const Address = () => {
           <img
             src="src/assets/images/OurLocation.jpg"
             alt="Google Maps Location"
-            className="w-full  object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+            className="w-full h-64 sm:h-80 nd:h-96 object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
             style={{ height: '400px' }}
           />
         </a>
@@ -26,7 +26,7 @@ const Address = () => {
       <h2 className="text-2xl font-bold text-center mt-12 mb-6">
         Contact Details
       </h2>
-      <div className="mx-[200px] p-6 bg-white rounded-lg shadow-lg"
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-lg"
       style={{
         backgroundImage: `url('src/assets/images/BG-About.png')`,
       }}>
