@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Services = () => {
+const Services = ({ showButton = true }) => {
   return (
     <div id="services" className="bg-beige py-12 scroll-mt-20">
       <h2 className="text-center text-3xl font-bold text-orange-700 mb-8">SERVICES</h2>
@@ -42,13 +42,15 @@ const Services = () => {
         </div>
       </div>
 
+    {showButton && (
       <div className="mt-8 text-center">
-      <Link to="/booking">
+      <Link to="/services">
           <button className="bg-red-700 hover:bg-red-900 text-white py-3 px-8 rounded-full shadow-lg text-lg transition-transform duration-300 hover:scale-105">
             Book
           </button>
         </Link>
       </div>
+    )}
     </div>
   );
 };

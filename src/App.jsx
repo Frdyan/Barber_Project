@@ -11,6 +11,7 @@ import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import BookingPage from './pages/BookingPage';
 import Dashboard from './pages/Dashboard';
+import Services from './pages/ServicesPage';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,7 +21,8 @@ const router = createBrowserRouter(
     <Route path='/login' element={<LoginPage />} />
     <Route path='/booking' element={<BookingPage />} />
     <Route path='/dashboard' element={<Dashboard />} />
-  </Route>
+    <Route path='/services' element={<Services />} />
+  </Route >
   )
 );
 

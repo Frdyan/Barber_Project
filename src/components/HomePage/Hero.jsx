@@ -16,7 +16,7 @@ const Hero = () => {
         <h1 className="text-4xl md:text-8xl font-bold mb-4 text-amber-100 max-w-[70%]">
           OUR HAIRSTYLE MAKES YOU LOOK ELEGANT
         </h1>
-        <Link to="/booking">
+        <Link to="/services">
           <button className="min-w-[200px] py-3 bg-red-700 hover:bg-red-900 text-white rounded-md shadow-md ">
             Book
           </button>
