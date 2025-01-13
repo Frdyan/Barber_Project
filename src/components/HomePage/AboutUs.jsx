@@ -4,7 +4,7 @@ const AboutUs = () => {
         id="about-us"
         className="bg-cover bg-center py-12 px-6 text-center scroll-mt-20"
         style={{
-          backgroundImage: `url('src/assets/images/BG-About.png')`, // Ganti dengan path gambar Anda
+          backgroundImage: `url('src/assets/images/BG-About.png')`, 
         }}
       >
         {/* Overlay (optional, jika ingin teks lebih terlihat) */}
