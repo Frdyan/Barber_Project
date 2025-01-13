@@ -4,10 +4,10 @@ const Contact = () => {
         id="contact-us"
         className="bg-cover bg-center py-12 px-6 text-center scroll-mt-20"
         style={{
-          backgroundImage: `url('src/assets/images/BG-About.png')`, // Ganti dengan path gambar Anda
+          backgroundImage: `url('src/assets/images/BG-About.png')`,
         }}
       >
-        {/* Overlay (optional, jika ingin teks lebih terlihat) */}
+        {/* Overlay (optional) */}
         <div className=" bg-opacity-50 p-8 rounded-lg">
           {/* Header */}
           <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-4">
