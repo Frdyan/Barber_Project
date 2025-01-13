@@ -33,7 +33,7 @@ const BookingForm = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className="bg-[#F5ECD5] h-screen flex flex-col justify-center items-center px-4">
+      <div className="h-screen flex flex-col justify-center items-center px-4">
         {/* Header */}
         <h5 className="text-lg md:text-xl font-bold mb-4">Pilih Tanggal Booking</h5>
 
