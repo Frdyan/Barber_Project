@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const BlacklistBadge = ({ isBlacklisted }) => {
@@ -8,13 +9,17 @@ const BlacklistBadge = ({ isBlacklisted }) => {
   );
 };
 
-const ActionButton = ({ isBlacklisted }) => {
+const ActionButton = ({ isBlacklisted, userId, onBlacklist, disabled }) => {
   const styles = isBlacklisted
-    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-    : 'bg-red-500 hover:bg-red-600 text-white';
+    ? 'bg-gray-400 text-white cursor-not-allowed'
+    : 'bg-red-500 hover:bg-red-600 text-white cursor-pointer';
   
   return (
-    <button className={`px-4 py-1 rounded-full text-sm ${styles}`}>
+    <button 
+      className={`px-4 py-1 rounded-full text-sm ${styles}`}
+      onClick={() => !isBlacklisted && onBlacklist(userId)}
+      disabled={disabled || isBlacklisted}
+    >
       {isBlacklisted ? 'Blacklisted' : 'Confirm'}
     </button>
   );
@@ -26,25 +31,84 @@ BlacklistBadge.propTypes = {
 
 ActionButton.propTypes = {
   isBlacklisted: PropTypes.bool.isRequired,
+  userId: PropTypes.number.isRequired,
+  onBlacklist: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
 const UserManagementPage = () => {
-  const users = [
-    {
-      id: '901',
-      name: 'Jordan Peele',
-      email: 'Jordan199@gmail.com',
-      password: 'Peele19902',
-      blacklisted: false
-    },
-    {
-      id: '902',
-      name: 'Michael Keaton',
-      email: 'Keaton0202@gmail.com',
-      password: 'MichaelR11',
-      blacklisted: true
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [blacklistInProgress, setBlacklistInProgress] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const data = await response.json();
+        // Filter out admin users (role_id = 1)
+        const filteredUsers = data.filter(user => user.role_id !== 1);
+        setUsers(filteredUsers);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleBlacklist = async (userId) => {
+    try {
+      setBlacklistInProgress(true);
+      const response = await fetch(`/api/users/${userId}/blacklist`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_blacklisted: true })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to blacklist user');
+      }
+
+      // Update local state
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.user_id === userId 
+            ? { ...user, is_blacklisted: true }
+            : user
+        )
+      );
+    } catch (err) {
+      console.error('Error blacklisting user:', err);
+      alert('Failed to blacklist user. Please try again.');
+    } finally {
+      setBlacklistInProgress(false);
     }
-  ];
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600">Loading users...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 text-red-600 p-4 rounded-lg">
+        Error: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -65,11 +129,11 @@ const UserManagementPage = () => {
           <tbody>
             {users.map((user, index) => (
               <tr 
-                key={user.id}
+                key={user.user_id}
                 className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
               >
-                <td className="px-4 py-3">{user.id}</td>
-                <td className="px-4 py-3">{user.name}</td>
+                <td className="px-4 py-3">{user.user_id}</td>
+                <td className="px-4 py-3">{user.fullname || '-'}</td>
                 <td className="px-4 py-3">
                   <a 
                     href={`mailto:${user.email}`} 
@@ -80,10 +144,15 @@ const UserManagementPage = () => {
                 </td>
                 <td className="px-4 py-3">{user.password}</td>
                 <td className="px-4 py-3">
-                  <BlacklistBadge isBlacklisted={user.blacklisted} />
+                  <BlacklistBadge isBlacklisted={user.is_blacklisted} />
                 </td>
                 <td className="px-4 py-3">
-                  <ActionButton isBlacklisted={user.blacklisted} />
+                  <ActionButton 
+                    isBlacklisted={user.is_blacklisted}
+                    userId={user.user_id}
+                    onBlacklist={handleBlacklist}
+                    disabled={blacklistInProgress}
+                  />
                 </td>
               </tr>
             ))}
