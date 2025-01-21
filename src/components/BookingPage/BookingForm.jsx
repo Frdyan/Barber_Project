@@ -1,4 +1,3 @@
-// BookingForm.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers";
@@ -14,6 +13,8 @@ const BookingForm = ({ selectedService, selectedArtist, onGoBack }) => {
   const [selectedTime, setSelectedTime] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState(null);
 
   const isLoggedIn = () => {
     return !!localStorage.getItem('token');
@@ -60,24 +61,30 @@ const BookingForm = ({ selectedService, selectedArtist, onGoBack }) => {
     processBooking();
   };
 
+  const handleSuccessClose = () => {
+    setShowSuccessModal(false);
+    navigate('/', { 
+      state: { 
+        bookingDetails: bookingDetails
+      }
+    });
+  };
+
   const processBooking = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Ambil user_id dari localStorage jika tersimpan saat login
       const user = JSON.parse(localStorage.getItem('user'));
       
       const bookingData = {
-        user_id: user.user_id, // Tambahkan user_id
+        user_id: user.user_id,
         service_id: selectedService.service_id,
         barber_id: selectedArtist.barber_id,
         booking_date: selectedDate.format('YYYY-MM-DD'),
         booking_time: selectedTime,
-        status: "pending" // Tambahkan status
+        status: "pending"
       };
-
-      console.log('Sending booking data:', bookingData); // Debug
 
       const response = await fetch('/api/bookings', {
         method: 'POST',
@@ -94,20 +101,17 @@ const BookingForm = ({ selectedService, selectedArtist, onGoBack }) => {
         throw new Error(responseData.message || 'Booking failed');
       }
 
-      console.log('Booking response:', responseData); // Debug
-
       localStorage.removeItem('pendingBooking');
 
-      navigate('/', { 
-        state: { 
-          bookingDetails: {
-            ...bookingData,
-            service: selectedService.service_name,
-            artist: selectedArtist.name,
-            id: responseData.booking_id // Tambahkan booking_id dari response
-          }
-        }
-      });
+      const details = {
+        ...bookingData,
+        service: selectedService.service_name,
+        artist: selectedArtist.name,
+        id: responseData.booking_id
+      };
+      setBookingDetails(details);
+      
+      setShowSuccessModal(true);
       
     } catch (err) {
       console.error('Booking error:', err);
@@ -115,11 +119,35 @@ const BookingForm = ({ selectedService, selectedArtist, onGoBack }) => {
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="h-screen flex flex-col justify-center items-center px-4">
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800">
+                Booking Successful!
+              </h2>
+              <p className="text-center text-gray-600 mb-6">
+                Your appointment has been successfully booked with {selectedArtist.name} 
+                for {selectedService.service_name} on {selectedDate.format('MMMM D, YYYY')} 
+                at {selectedTime}.
+              </p>
+              <div className="flex justify-center">
+                <button
+                  onClick={handleSuccessClose}
+                  className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Selected Service & Artist Info */}
         <div className="bg-white p-4 rounded-lg shadow-md mb-4 w-full max-w-md">
           <h4 className="font-semibold text-gray-800 mb-2">Booking Details</h4>
