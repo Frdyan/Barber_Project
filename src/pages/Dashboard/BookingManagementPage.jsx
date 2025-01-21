@@ -65,8 +65,16 @@ const ActionButtons = ({ status, onConfirm, onCancel, disabled }) => {
 
 const BookingSummary = ({ bookings }) => {
   const summary = bookings.reduce((acc, booking) => {
-    const status = booking.status;
-    acc[status] = (acc[status] || 0) + 1;
+    // Normalize status to uppercase for consistent counting
+    const status = booking.status.toUpperCase();
+    
+    // Count 'ONGOING' as 'PENDING'
+    if (status === 'ONGOING') {
+      acc['PENDING'] = (acc['PENDING'] || 0) + 1;
+    } else {
+      acc[status] = (acc[status] || 0) + 1;
+    }
+    
     return acc;
   }, {});
 
@@ -92,6 +100,32 @@ const BookingSummary = ({ bookings }) => {
   );
 };
 
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  return (
+    <div className="flex justify-center items-center space-x-2 mt-4">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Previous
+      </button>
+      
+      <span className="text-gray-600">
+        Page {currentPage} of {totalPages}
+      </span>
+      
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Next
+      </button>
+    </div>
+  );
+};
+
 const BookingManagementPage = () => {
   const [bookings, setBookings] = useState([]);
   const [users, setUsers] = useState({});
@@ -100,6 +134,10 @@ const BookingManagementPage = () => {
   const [loading, setLoading] = useState(true);
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
   const [error, setError] = useState(null);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchBookings = async () => {
     try {
@@ -146,7 +184,6 @@ const BookingManagementPage = () => {
         setServices(servicesMap);
         setBarbers(barbersMap);
         
-        // Fetch initial bookings
         await fetchBookings();
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -176,7 +213,6 @@ const BookingManagementPage = () => {
         throw new Error('Failed to update booking status');
       }
 
-      // Refresh the bookings data after successful update
       await fetchBookings();
     } catch (error) {
       console.error('Error updating booking:', error);
@@ -199,6 +235,18 @@ const BookingManagementPage = () => {
     });
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBookings = bookings.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <h1 className="text-xl font-semibold mb-6">Booking</h1>
@@ -213,9 +261,19 @@ const BookingManagementPage = () => {
       
       <div className="overflow-x-auto">
         <table className="w-full">
-          {/* ... (table header remains the same) ... */}
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">ID</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Customer</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Service</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Barber</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Schedule</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Actions</th>
+            </tr>
+          </thead>
           <tbody>
-            {bookings.map((booking, index) => (
+            {currentBookings.map((booking, index) => (
               <tr 
                 key={booking.booking_id}
                 className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
@@ -242,6 +300,12 @@ const BookingManagementPage = () => {
             ))}
           </tbody>
         </table>
+
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
@@ -261,6 +325,12 @@ ActionButtons.propTypes = {
 
 BookingSummary.propTypes = {
   bookings: PropTypes.array.isRequired,
+};
+
+Pagination.propTypes = {
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
 };
 
 export default BookingManagementPage;
