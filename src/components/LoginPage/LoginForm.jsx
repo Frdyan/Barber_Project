@@ -1,5 +1,7 @@
+// LoginForm.jsx
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -9,7 +11,6 @@ const LoginForm = () => {
   const { handleLoginSuccess } = useOutletContext();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -52,12 +53,18 @@ const LoginForm = () => {
       }
 
       handleLoginSuccess(data.user);
+      localStorage.setItem('token', data.token);
       
-      // Redirect berdasarkan role
-      if (data.user.role_id === 1) {
-        navigate('/dashboard');
+      // Cek pending booking setelah login berhasil
+      const pendingBooking = localStorage.getItem('pendingBooking');
+      if (pendingBooking) {
+        navigate('/booking');
       } else {
-        navigate('/');
+        if (data.user.role_id === 1) {
+          navigate('/dashboard');
+        } else {
+          navigate('/');
+        }
       }
 
     } catch (err) {
@@ -115,6 +122,10 @@ const LoginForm = () => {
       </div>
     </div>
   );
+};
+
+LoginForm.propTypes = {
+  handleLoginSuccess: PropTypes.func,
 };
 
 export default LoginForm;
