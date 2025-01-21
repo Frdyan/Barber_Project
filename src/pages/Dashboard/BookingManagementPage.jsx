@@ -1,6 +1,93 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
+// New Filter component
+const BookingFilters = ({ onFilterChange, services, barbers }) => {
+  const [filters, setFilters] = useState({
+    customerName: '',
+    serviceId: '',
+    barberId: '',
+    bookingDate: ''
+  });
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    const newFilters = { ...filters, [name]: value };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">
+          Customer Name
+        </label>
+        <input
+          type="text"
+          name="customerName"
+          value={filters.customerName}
+          onChange={handleFilterChange}
+          placeholder="Search by name"
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">
+          Service
+        </label>
+        <select
+          name="serviceId"
+          value={filters.serviceId}
+          onChange={handleFilterChange}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        >
+          <option value="">All Services</option>
+          {Object.values(services).map(service => (
+            <option key={service.service_id} value={service.service_id}>
+              {service.service_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">
+          Hair Artist
+        </label>
+        <select
+          name="barberId"
+          value={filters.barberId}
+          onChange={handleFilterChange}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        >
+          <option value="">All Hair Artists</option>
+          {Object.values(barbers).map(barber => (
+            <option key={barber.barber_id} value={barber.barber_id}>
+              {barber.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">
+          Booking Date
+        </label>
+        <input
+          type="date"
+          name="bookingDate"
+          value={filters.bookingDate}
+          onChange={handleFilterChange}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+    </div>
+  );
+};
+
+// Existing components remain the same
 const StatusBadge = ({ status }) => {
   const getStatusStyle = (status) => {
     switch(status) {
@@ -65,16 +152,12 @@ const ActionButtons = ({ status, onConfirm, onCancel, disabled }) => {
 
 const BookingSummary = ({ bookings }) => {
   const summary = bookings.reduce((acc, booking) => {
-    // Normalize status to uppercase for consistent counting
     const status = booking.status.toUpperCase();
-    
-    // Count 'ONGOING' as 'PENDING'
     if (status === 'ONGOING') {
       acc['PENDING'] = (acc['PENDING'] || 0) + 1;
     } else {
       acc[status] = (acc[status] || 0) + 1;
     }
-    
     return acc;
   }, {});
 
@@ -128,14 +211,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 const BookingManagementPage = () => {
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
   const [users, setUsers] = useState({});
   const [services, setServices] = useState({});
   const [barbers, setBarbers] = useState({});
   const [loading, setLoading] = useState(true);
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
   const [error, setError] = useState(null);
-  
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -144,6 +226,7 @@ const BookingManagementPage = () => {
       const bookingsRes = await fetch('/api/bookings');
       const bookingsData = await bookingsRes.json();
       setBookings(bookingsData);
+      setFilteredBookings(bookingsData);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       setError('Failed to fetch bookings');
@@ -196,6 +279,45 @@ const BookingManagementPage = () => {
     fetchAllData();
   }, []);
 
+  const handleFilterChange = (filters) => {
+    let filtered = [...bookings];
+
+    // Filter by customer name
+    if (filters.customerName) {
+      const searchName = filters.customerName.toLowerCase();
+      filtered = filtered.filter(booking => {
+        const customerName = users[booking.user_id]?.fullname || '';
+        return customerName.toLowerCase().includes(searchName);
+      });
+    }
+
+    // Filter by service
+    if (filters.serviceId) {
+      filtered = filtered.filter(booking => 
+        booking.service_id.toString() === filters.serviceId.toString()
+      );
+    }
+
+    // Filter by barber
+    if (filters.barberId) {
+      filtered = filtered.filter(booking => 
+        booking.barber_id.toString() === filters.barberId.toString()
+      );
+    }
+
+    // Filter by date
+    if (filters.bookingDate) {
+      const filterDate = new Date(filters.bookingDate).toDateString();
+      filtered = filtered.filter(booking => {
+        const bookingDate = new Date(booking.booking_date).toDateString();
+        return bookingDate === filterDate;
+      });
+    }
+
+    setFilteredBookings(filtered);
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
   const handleStatusUpdate = async (bookingId, newStatus) => {
     setUpdatingBookingId(bookingId);
     setError(null);
@@ -236,10 +358,10 @@ const BookingManagementPage = () => {
   };
 
   // Pagination calculations
-  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentBookings = bookings.slice(startIndex, endIndex);
+  const currentBookings = filteredBookings.slice(startIndex, endIndex);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -256,8 +378,14 @@ const BookingManagementPage = () => {
           <p className="text-red-700">{error}</p>
         </div>
       )}
+
+      <BookingFilters 
+        onFilterChange={handleFilterChange}
+        services={services}
+        barbers={barbers}
+      />
       
-      <BookingSummary bookings={bookings} />
+      <BookingSummary bookings={filteredBookings} />
       
       <div className="overflow-x-auto">
         <table className="w-full">
