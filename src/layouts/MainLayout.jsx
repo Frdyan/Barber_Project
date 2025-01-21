@@ -14,18 +14,29 @@ const MainLayout = () => {
     const savedUser = localStorage.getItem("user");
     
     if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else if (!token && location.pathname !== "/login") {
-      navigate("/login");
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      
+      // Redirect admin ke dashboard jika mencoba mengakses halaman user
+      if (userData.role_id === 1 && location.pathname === '/') {
+        navigate('/dashboard');
+        return;
+      }
     }
     setIsLoading(false);
-  }, []);
+  }, [navigate, location]);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", userData.token); // Assuming token comes with user data
-    navigate("/"); 
+    localStorage.setItem("token", userData.token);
+    
+    // Redirect berdasarkan role setelah login
+    if (userData.role_id === 1) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
   };
 
   const handleLogout = () => {

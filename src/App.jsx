@@ -6,7 +6,6 @@ import {
 } from 'react-router-dom'
 
 import MainLayout from './layouts/MainLayout';
-import DashboardLayout from './layouts/DashboardLayout';
 import HomePage from './pages/HomePage'
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
@@ -16,6 +15,7 @@ import BookingPage from './pages/BookingPage';
 import BarberManagementPage from './pages/Dashboard/BarberManagementPage'
 import BookingManagementPage from './pages/Dashboard/BookingManagementPage'
 import UserManagementPage from './pages/Dashboard/UserManagementPage'
+import ProtectedRoute from './components/ProtectedRoutes';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,7 +28,7 @@ const router = createBrowserRouter(
     <Route path='/booking' element={<BookingPage />} />
   </Route>
 
-  <Route path="/dashboard" element={<DashboardLayout />}>
+  <Route path="/dashboard" element={<ProtectedRoute />}>
       <Route index element={<BarberManagementPage />} /> 
       <Route path="bookings" element={<BookingManagementPage />} />
       <Route path="users" element={<UserManagementPage />} />
