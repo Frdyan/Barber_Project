@@ -47,14 +47,19 @@ const LoginForm = () => {
 
       const data = await response.json();
 
-      console.log("Response API:", data);  // <-- Tambahkan ini
-      console.log("Response Structure:", JSON.stringify(data, null, 2));
-
       if (!response.ok) {
-        throw new Error(data.message || "Login failed. Please check your credentials.");
+        throw new Error(data.message || "Login failed");
       }
 
       handleLoginSuccess(data.user);
+      
+      // Redirect berdasarkan role
+      if (data.user.role_id === 1) {
+        navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
+
     } catch (err) {
       setError(err.message);
     } finally {
