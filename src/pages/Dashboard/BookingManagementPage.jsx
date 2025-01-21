@@ -20,32 +20,50 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const ActionButton = ({ status, onActionClick }) => {
-  const getActionConfig = (status) => {
-    switch(status) {
-      case 'DONE':
-        return { text: 'Complete', style: 'bg-green-500 hover:bg-green-600 text-white' };
-      case 'CANCELLED':
-        return { text: 'Cancelled', style: 'bg-red-500 hover:bg-red-600 text-white' };
-      default:
-        return { text: 'Confirm', style: 'bg-yellow-300 hover:bg-yellow-400 text-yellow-800' };
-    }
-  };
+const ActionButtons = ({ status, onConfirm, onCancel, disabled }) => {
+  if (status === 'DONE') {
+    return (
+      <button 
+        disabled
+        className="px-4 py-1 rounded-full text-sm bg-green-500 text-white opacity-50 cursor-not-allowed"
+      >
+        Completed
+      </button>
+    );
+  }
 
-  const config = getActionConfig(status);
+  if (status === 'CANCELLED') {
+    return (
+      <button 
+        disabled
+        className="px-4 py-1 rounded-full text-sm bg-red-500 text-white opacity-50 cursor-not-allowed"
+      >
+        Cancelled
+      </button>
+    );
+  }
 
   return (
-    <button 
-      onClick={onActionClick}
-      className={`px-4 py-1 rounded-full text-sm ${config.style}`}
-    >
-      {config.text}
-    </button>
+    <div className="flex space-x-2">
+      <button 
+        onClick={onConfirm}
+        disabled={disabled}
+        className="px-4 py-1 rounded-full text-sm bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Confirm
+      </button>
+      <button 
+        onClick={onCancel}
+        disabled={disabled}
+        className="px-4 py-1 rounded-full text-sm bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Cancel
+      </button>
+    </div>
   );
 };
 
 const BookingSummary = ({ bookings }) => {
-  // Hitung jumlah booking untuk setiap status
   const summary = bookings.reduce((acc, booking) => {
     const status = booking.status;
     acc[status] = (acc[status] || 0) + 1;
@@ -80,26 +98,35 @@ const BookingManagementPage = () => {
   const [services, setServices] = useState({});
   const [barbers, setBarbers] = useState({});
   const [loading, setLoading] = useState(true);
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [error, setError] = useState(null);
+
+  const fetchBookings = async () => {
+    try {
+      const bookingsRes = await fetch('/api/bookings');
+      const bookingsData = await bookingsRes.json();
+      setBookings(bookingsData);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setError('Failed to fetch bookings');
+    }
+  };
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        // Fetch all required data in parallel
-        const [bookingsRes, usersRes, servicesRes, barbersRes] = await Promise.all([
-          fetch('/api/bookings'),
+        const [usersRes, servicesRes, barbersRes] = await Promise.all([
           fetch('/api/users'),
           fetch('/api/services'),
           fetch('/api/barbers')
         ]);
 
-        const [bookingsData, usersData, servicesData, barbersData] = await Promise.all([
-          bookingsRes.json(),
+        const [usersData, servicesData, barbersData] = await Promise.all([
           usersRes.json(),
           servicesRes.json(),
           barbersRes.json()
         ]);
 
-        // Transform data into maps for easier lookup
         const usersMap = usersData.reduce((acc, user) => {
           acc[user.user_id] = user;
           return acc;
@@ -118,9 +145,12 @@ const BookingManagementPage = () => {
         setUsers(usersMap);
         setServices(servicesMap);
         setBarbers(barbersMap);
-        setBookings(bookingsData);
+        
+        // Fetch initial bookings
+        await fetchBookings();
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError('Failed to fetch data');
       } finally {
         setLoading(false);
       }
@@ -128,6 +158,33 @@ const BookingManagementPage = () => {
 
     fetchAllData();
   }, []);
+
+  const handleStatusUpdate = async (bookingId, newStatus) => {
+    setUpdatingBookingId(bookingId);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}/status`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: newStatus })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update booking status');
+      }
+
+      // Refresh the bookings data after successful update
+      await fetchBookings();
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      setError('Failed to update booking status');
+    } finally {
+      setUpdatingBookingId(null);
+    }
+  };
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -146,22 +203,17 @@ const BookingManagementPage = () => {
     <div className="bg-white rounded-lg shadow-sm p-6">
       <h1 className="text-xl font-semibold mb-6">Booking</h1>
       
-      {/* Tambahkan BookingSummary */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      
       <BookingSummary bookings={bookings} />
       
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead>
-            <tr className="text-left">
-              <th className="px-4 py-3 text-gray-600">ID</th>
-              <th className="px-4 py-3 text-gray-600">Nama Pengguna</th>
-              <th className="px-4 py-3 text-gray-600">Layanan</th>
-              <th className="px-4 py-3 text-gray-600">Hair Artist</th>
-              <th className="px-4 py-3 text-gray-600">Waktu Booking</th>
-              <th className="px-4 py-3 text-gray-600">Status</th>
-              <th className="px-4 py-3 text-gray-600">Action</th>
-            </tr>
-          </thead>
+          {/* ... (table header remains the same) ... */}
           <tbody>
             {bookings.map((booking, index) => (
               <tr 
@@ -179,9 +231,11 @@ const BookingManagementPage = () => {
                   <StatusBadge status={booking.status} />
                 </td>
                 <td className="px-4 py-3">
-                  <ActionButton 
+                  <ActionButtons 
                     status={booking.status}
-                    onActionClick={() => console.log('Action clicked for booking:', booking.booking_id)}
+                    onConfirm={() => handleStatusUpdate(booking.booking_id, 'DONE')}
+                    onCancel={() => handleStatusUpdate(booking.booking_id, 'CANCELLED')}
+                    disabled={updatingBookingId === booking.booking_id}
                   />
                 </td>
               </tr>
@@ -198,9 +252,11 @@ StatusBadge.propTypes = {
   status: PropTypes.string.isRequired,
 };
 
-ActionButton.propTypes = {
+ActionButtons.propTypes = {
   status: PropTypes.string.isRequired,
-  onActionClick: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
 BookingSummary.propTypes = {
