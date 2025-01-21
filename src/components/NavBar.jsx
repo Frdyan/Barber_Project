@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 
-const NavBar = () => {
+const NavBar = ({ user, onLogout }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
@@ -24,7 +25,6 @@ const NavBar = () => {
 
   const isHomePage = location.pathname === "/";
 
-  // Smooth scrolling function
   const handleScrollToSection = (id) => {
     const section = document.getElementById(id);
     if (section) {
@@ -50,7 +50,7 @@ const NavBar = () => {
           </Link>
         </div>
 
-        {/* Conditional Navigation Links */}
+        {/* Navigation Links */}
         {isHomePage && (
           <div className="hidden md:flex space-x-6">
             <button
@@ -91,24 +91,47 @@ const NavBar = () => {
           </div>
         )}
 
-        {/* Buttons */}
-        <div className="flex space-x-4">
-          <Link
-            to="/signup"
-            className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-300"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-300"
-          >
-            Sign In
-          </Link>
+        {/* Auth Buttons */}
+        <div className="flex items-center space-x-4">
+          {user ? (
+            <>
+              <span className="text-orange-700 font-medium px-4 py-2 bg-orange-100 rounded-md">
+                {user.fullname || 'User'}
+              </span>
+              <button
+                onClick={onLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-300"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-300"
+              >
+                Sign In
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
+};
+
+NavBar.propTypes = {
+  user: PropTypes.shape({
+    fullname: PropTypes.string,
+  }),
+  onLogout: PropTypes.func.isRequired,
 };
 
 export default NavBar;
