@@ -25,15 +25,53 @@ const ActionButton = ({ isBlacklisted, userId, onBlacklist, disabled }) => {
   );
 };
 
-BlacklistBadge.propTypes = {
-  isBlacklisted: PropTypes.bool.isRequired,
+const UserSummary = ({ users }) => {
+  const totalUsers = users.length;
+  const blacklistedUsers = users.filter(user => user.is_blacklisted).length;
+  const activeUsers = totalUsers - blacklistedUsers;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+        <h3 className="text-gray-600 text-sm font-medium">Total Users</h3>
+        <p className="text-2xl font-bold mt-2">{totalUsers}</p>
+      </div>
+      <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+        <h3 className="text-gray-600 text-sm font-medium">Active Users</h3>
+        <p className="text-2xl font-bold mt-2">{activeUsers}</p>
+      </div>
+      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+        <h3 className="text-gray-600 text-sm font-medium">Blacklisted Users</h3>
+        <p className="text-2xl font-bold mt-2">{blacklistedUsers}</p>
+      </div>
+    </div>
+  );
 };
 
-ActionButton.propTypes = {
-  isBlacklisted: PropTypes.bool.isRequired,
-  userId: PropTypes.number.isRequired,
-  onBlacklist: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  return (
+    <div className="flex justify-center items-center space-x-2 mt-4">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Previous
+      </button>
+      
+      <span className="text-gray-600">
+        Page {currentPage} of {totalPages}
+      </span>
+      
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Next
+      </button>
+    </div>
+  );
 };
 
 const UserManagementPage = () => {
@@ -41,6 +79,8 @@ const UserManagementPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [blacklistInProgress, setBlacklistInProgress] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -110,24 +150,38 @@ const UserManagementPage = () => {
     );
   }
 
+  // Pagination calculations
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUsers = users.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <h1 className="text-xl font-semibold mb-6">User</h1>
       
+      <UserSummary users={users} />
+      
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="text-left">
-              <th className="px-4 py-3 text-gray-600">ID</th>
-              <th className="px-4 py-3 text-gray-600">Nama Pelanggan</th>
-              <th className="px-4 py-3 text-gray-600">Email</th>
-              <th className="px-4 py-3 text-gray-600">Password</th>
-              <th className="px-4 py-3 text-gray-600">Blacklist</th>
-              <th className="px-4 py-3 text-gray-600">Action</th>
+            <tr className="text-left bg-gray-50">
+              <th className="px-4 py-3 text-sm font-medium text-gray-600">ID</th>
+              <th className="px-4 py-3 text-sm font-medium text-gray-600">Nama Pelanggan</th>
+              <th className="px-4 py-3 text-sm font-medium text-gray-600">Email</th>
+              <th className="px-4 py-3 text-sm font-medium text-gray-600">Password</th>
+              <th className="px-4 py-3 text-sm font-medium text-gray-600">Blacklist</th>
+              <th className="px-4 py-3 text-sm font-medium text-gray-600">Action</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((user, index) => (
+            {currentUsers.map((user, index) => (
               <tr 
                 key={user.user_id}
                 className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
@@ -158,9 +212,36 @@ const UserManagementPage = () => {
             ))}
           </tbody>
         </table>
+
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
+};
+
+BlacklistBadge.propTypes = {
+  isBlacklisted: PropTypes.bool.isRequired,
+};
+
+ActionButton.propTypes = {
+  isBlacklisted: PropTypes.bool.isRequired,
+  userId: PropTypes.number.isRequired,
+  onBlacklist: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
+
+UserSummary.propTypes = {
+  users: PropTypes.array.isRequired,
+};
+
+Pagination.propTypes = {
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
 };
 
 export default UserManagementPage;
