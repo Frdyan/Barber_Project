@@ -38,7 +38,7 @@ const Sidebar = () => {
             <img 
               src="/api/placeholder/100/40" 
               alt="Dole Logo" 
-              className="h-8 w-auto"
+              className="h-8 w-auto "
             />
           </div>
         </div>
